@@ -32,8 +32,11 @@
 ::    * channels:read
 ::  - 
 ::
+/-  cha=chat
 /+  ser=server
 |%
+::
++$  flag  (pair ship term)
 ::
 +$  actions
   $%  [%app-credentials aid=@t cid=@t cet=@t ret=@t]    :: app credentials

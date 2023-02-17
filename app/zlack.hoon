@@ -8,6 +8,8 @@
 +$  state-0
   $:  %0
       url=@t
+      chat=(unit flag)
+  ::
       app-id=@t
       client-id=@t
       client-secret=@t
@@ -145,16 +147,22 @@
           pay=(unit simple-payload:http)
       ==
   +*  we  .
+      our  (scot %p our.bol)
+      now  (scot %da now.bol)
   ++  frisk  ::  parse url-encoded form args
     |=  body=@t
     %-  ~(gas by *(map @t @t))
     (fall (rush body yquy:de-purl:html) ~)
   ++  we-emit  |=(c=card we(caz [c caz]))
   ++  we-emil  |=(lac=(list card) we(caz (welp lac caz)))
+  ++  we-chat  .^((set flag) %gx /[our]/chat/[now]/chat/noun)
   ++  we-abed
     |=([id=@ta ib=inbound-request:eyre] we(eid id, inb ib))
   ++  we-fail
     |=(and=@t we(pay `[500+~ `(we-page 'u done gooft' and ~)]))
+  ++  we-part
+    ^-  $-(@t (unit flag))
+    |=(a=@t (rush a ;~((glue bar) ;~(pfix sig fed:ag) sym)))
   ::
   ++  we-abet
     ^-  (quip card _state)
@@ -176,17 +184,39 @@
     =/  reqline  (parse-request-line:ser url.request.inb)
     ~&  >>  [%inb-request inb]
     =+  pol=`(pole knot)`site.reqline
+    ~&  >  [%pole pol]
     ?>  ?=([%apps %zlack rest=*] pol)
-    ?+    method.request.inb  (we-fail 'unexpected method')
-      ::  XX: remove this later probably?
-      %'GET'   we(pay `[[200^~ `(we-page ~)]])
-    ::
-        %'POST'
-      ?~  body.request.inb
-        (we-fail 'empty body')
-      ~&  >>>  (frisk q.u.body.request.inb)
-      (we-fail 'success')
-    ==
+      ?+    rest.pol  (we-fail 'bad path')
+          ~
+        ?+    method.request.inb  (we-fail 'bad method')
+          ::  XX: remove this later probably?
+          %'GET'   we(pay `[[200^~ `(we-page ~)]])
+        ::
+            %'POST'
+          ?~  body.request.inb
+            (we-fail 'empty body')
+          =+  figs=(frisk q.u.body.request.inb)
+          ?.  ?&  (~(has by figs) 'url')
+                  (~(has by figs) 'chat')
+                  (~(has by figs) 'app-id')
+                  (~(has by figs) 'client-id')
+                  (~(has by figs) 'client-secret')
+                  (~(has by figs) 'sign-secret')
+              ==
+            (we-fail 'missing arguments')
+          ?~  fug=(we-part (~(got by figs) 'chat'))
+            (we-fail 'missing chat')
+          =-  we(pay `[[200^~ `(we-page ~)]])
+          %=  we
+            url            (~(got by figs) 'url')
+            chat           fug
+            app-id         (~(got by figs) 'app-id')
+            client-id      (~(got by figs) 'client-id')
+            client-secret  (~(got by figs) 'client-secret')
+            sign-secret    (~(got by figs) 'sign-secret')
+          ==
+        ==
+      ==
   ::
   ++  we-page
     |=  errs=(list @t)
@@ -215,12 +245,15 @@
         ==
       ::
         ;+  ?.  =('' client-id)
-              ?~  access-token
-                ;a(href we-auth):"connect"
-              ;a(href we-auth, disabled ""):"connect"
+              ;form(method "get", action "#")
+                ;+  ?~  access-token
+                      ;a(class "button", href we-auth):"connect"
+                    ;a(class "button", href we-auth, disabled ""):"connect"
+              ==
             ;form(method "post")
               ;fieldset
                 ;legend:"urbit information"
+              ::
                 ;label(for "url"):"base url:"
                 ;input
                   =type         "text"
@@ -228,10 +261,24 @@
                   =name         "url"
                   =required     ""
                   =placeholder  "https://{(slag 1 (scow %p our.bol))}.arvo.network";
+              ::
+                ;select(id "chat", name "chat", required "")
+                  ;=  ;option(value ""):"select chat"
+                      ;*  ^-  marl
+                          %-  ~(rep in we-chat)
+                          |=  [f=flag l=(list manx)]
+                          :_  l
+                          ;option
+                            =value  "{(scow %p p.f)}|{(trip q.f)}"
+                            {(scow %p p.f)}|{(trip q.f)}
+                          ==
+                  ==
+                ==
               ==
             ::
               ;fieldset
                 ;legend:"slack app information"
+              ::
                 ;label(for "app-id"):"app-id:"
                 ;input
                   =type         "text"
@@ -370,6 +417,25 @@
     button:focus, a.button:focus {
       outline: none;
       box-shadow: 0 0 0 0.2rem rgba(85, 85, 85, 0.5);
+    }
+
+    select {
+      width: 100%;
+      max-width: 30rem;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 0.25rem;
+      background-color: #292929;
+      color: #f5f5f5;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0 2l4 4 4-4H0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7em top 50%;
+      background-size: 8px auto;
     }
     '''
   --
