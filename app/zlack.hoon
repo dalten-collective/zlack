@@ -145,11 +145,16 @@
           pay=(unit simple-payload:http)
       ==
   +*  we  .
+  ++  frisk  ::  parse url-encoded form args
+    |=  body=@t
+    %-  ~(gas by *(map @t @t))
+    (fall (rush body yquy:de-purl:html) ~)
   ++  we-emit  |=(c=card we(caz [c caz]))
-  ++  we-fail  we(pay `[500+~ `(we-page 'u done gooft' ~)])
   ++  we-emil  |=(lac=(list card) we(caz (welp lac caz)))
   ++  we-abed
     |=([id=@ta ib=inbound-request:eyre] we(eid id, inb ib))
+  ++  we-fail
+    |=(and=@t we(pay `[500+~ `(we-page 'u done gooft' and ~)]))
   ::
   ++  we-abet
     ^-  (quip card _state)
@@ -172,10 +177,15 @@
     ~&  >>  [%inb-request inb]
     =+  pol=`(pole knot)`site.reqline
     ?>  ?=([%apps %zlack rest=*] pol)
-    ?+    method.request.inb  we-fail
+    ?+    method.request.inb  (we-fail 'unexpected method')
       ::  XX: remove this later probably?
       %'GET'   we(pay `[[200^~ `(we-page ~)]])
-      :: %'POST'  (we-take cont itum)
+    ::
+        %'POST'
+      ?~  body.request.inb
+        (we-fail 'empty body')
+      ~&  >>>  (frisk q.u.body.request.inb)
+      (we-fail 'success')
     ==
   ::
   ++  we-page
@@ -208,46 +218,52 @@
               ?~  access-token
                 ;a(href we-auth):"connect"
               ;a(href we-auth, disabled ""):"connect"
-            ;form
-              ;label(for "url"):"url:"
-              ;input
-                =type         "text"
-                =id           "url"
-                =name         "url"
-                =required     ""
-                =placeholder  "https://{(scow %p our.bol)}.arvo.network";
+            ;form(method "post")
+              ;fieldset
+                ;legend:"urbit information"
+                ;label(for "url"):"base url:"
+                ;input
+                  =type         "text"
+                  =id           "url"
+                  =name         "url"
+                  =required     ""
+                  =placeholder  "https://{(slag 1 (scow %p our.bol))}.arvo.network";
+              ==
             ::
-              ;label(for "app-id"):"app-id:"
-              ;input
-                =type         "text"
-                =id           "app-id"
-                =name         "app-id"
-                =required     ""
-                =placeholder  "A01234ABCDE";
-            ::
-              ;label(for "client-id"):"client-id:"
-              ;input
-                =type         "text"
-                =id           "client-id"
-                =name         "client-id"
-                =required     ""
-                =placeholder  "#############.#############";
-            ::
-              ;label(for "client-secret"):"client-secret:"
-              ;input
-                =type         "text"
-                =id           "client-secret"
-                =name         "client-secret"
-                =required     ""
-                =placeholder  "ab12345678ab1cd2e345f67890g12345";
-            ::
-              ;label(for "sign-secret"):"sign-secret:"
-              ;input
-                =type         "text"
-                =id           "sign-secret"
-                =name         "sign-secret"
-                =required     ""
-                =placeholder  "xy12345678ab1cd2e345f67890g12345";
+              ;fieldset
+                ;legend:"slack app information"
+                ;label(for "app-id"):"app-id:"
+                ;input
+                  =type         "text"
+                  =id           "app-id"
+                  =name         "app-id"
+                  =required     ""
+                  =placeholder  "A01234ABCDE";
+              ::
+                ;label(for "client-id"):"client-id:"
+                ;input
+                  =type         "text"
+                  =id           "client-id"
+                  =name         "client-id"
+                  =required     ""
+                  =placeholder  "#############.#############";
+              ::
+                ;label(for "client-secret"):"client-secret:"
+                ;input
+                  =type         "text"
+                  =id           "client-secret"
+                  =name         "client-secret"
+                  =required     ""
+                  =placeholder  "ab12345678ab1cd2e345f67890g12345";
+              ::
+                ;label(for "sign-secret"):"sign-secret:"
+                ;input
+                  =type         "text"
+                  =id           "sign-secret"
+                  =name         "sign-secret"
+                  =required     ""
+                  =placeholder  "xy12345678ab1cd2e345f67890g12345";
+              ==
             ::
               ;button(class "button", type "submit"):"configure"
             ==
@@ -303,6 +319,12 @@
       align-items: center;
     }
 
+    fieldset {
+      display: flex;
+      flex-direction: column;
+      width: 35vw;
+    }
+
     label {
       font-size: 1.25rem;
       margin-bottom: 0.5rem;
@@ -322,6 +344,7 @@
     button, a.button {
       display: inline-block;
       padding: 0.75rem 1.5rem;
+      margin: 1rem;
       border: none;
       border-radius: 0.25rem;
       background-color: #555555;
