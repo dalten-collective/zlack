@@ -15,6 +15,8 @@
       client-secret=@t
       sign-secret=@t
       access-token=json
+  ::
+      echo=(set diff:writs:cha)
   ==
 ::
 ::
@@ -114,6 +116,16 @@
   ?>  ?=([%0 *] q.vaz)
   dat(state !<(state-0 vaz))
 ::
+++  poke
+  |=  [mar=mark vaz=vase]
+  ?+    mar  ~|(zlack-panic-bad-mark/mar !!)
+      %handle-http-request
+    =+  !<([id=@ta req=inbound-request:eyre] vaz)
+    =+  we=we-work:(we-abed:webs id req)
+    =^  cards  state  we-abet:we
+    (emil cards)
+  ==
+::
 ++  arvo
   |=  [pol=(pole knot) sig=sign-arvo]
   ?+    pol  ~|(zlack-panic-bad-arvo/[pol sig] !!)
@@ -127,16 +139,22 @@
       [%eyre %connect ~]
     ~_  'ZLACK: strange response on eyre.'
     ?>(?=([%eyre %bound %& *] sig) dat)
+  ::
+      [%iris %request ~]
+    ~_  'ZLACK: strange response from slack.'
+    ?>  ?=([%iris %http-response %finished *] sig)
+    ?>  ?&  =(%200 status-code.response-header.client-response.sig)
+            ?=(^ full-file.client-response.sig)
+        ==
+    =+  toke=(de-json:html q.data.u.full-file.client-response.sig)
+    dat(access-token (need toke))
   ==
 ::
-++  poke
-  |=  [mar=mark vaz=vase]
-  ?+    mar  ~|(zlack-panic-bad-mark/mar !!)
-      %handle-http-request
-    =+  !<([id=@ta req=inbound-request:eyre] vaz)
-    =+  we=we-work:(we-abed:webs id req)
-    =^  cards  state  we-abet:we
-    (emil cards)
+++  dude
+  |=  [pol=(pole knot) sig=sign:agent:gall]
+  ?+    pol  ~|(zlack-panic-bad-dude/[pol sig] !!)
+      [%chan %chat host=@ name=@ ~]
+    dat
   ==
 ::  +webs: handles handle-http-requests
 ::
@@ -156,6 +174,7 @@
   ++  we-emit  |=(c=card we(caz [c caz]))
   ++  we-emil  |=(lac=(list card) we(caz (welp lac caz)))
   ++  we-chat  .^((set flag) %gx /[our]/chat/[now]/chat/noun)
+  ++  we-help  we(pay `[200^~ `we-toke])
   ++  we-abed
     |=([id=@ta ib=inbound-request:eyre] we(eid id, inb ib))
   ++  we-fail
@@ -164,24 +183,61 @@
     ^-  $-(@t (unit flag))
     |=(a=@t (rush a ;~((glue bar) ;~(pfix sig fed:ag) sym)))
   ::
+  ++  we-hear
+    |=  =flag
+    ^+  we
+    =+  pat=/chat/(scot %p p.flag)/[q.flag]
+    %-  we-emit
+    [%pass chan+pat %agent [our.bol %chat] %watch pat]
+  ::
   ++  we-abet
     ^-  (quip card _state)
     :_  state
     %-  flop  %+  welp  caz
     (give-simple-payload:app:ser eid (need pay))
   ::
+  ++  we-code
+    |=  code=@t
+    ^-  [request:http outbound-config:iris]
+    =+  shak=(crip (a-co:co (end 6 (sham eny.bol))))
+    :_  *outbound-config:iris
+    :^    %'POST'
+        'https://slack.com/api/oauth.v2.access'
+      ['Content-Type'^(cat 3 'multipart/form-data; boundary=--' shak)]~
+    =-  `(as-octs:mimes:html (rap 3 -))
+    =-  ~&  >  `@t`(rap 3 -)  -
+    :~  '----'  shak  '\0d\0a'
+        'Content-Disposition: form-data; name="code"\0d\0a'
+        '\0d\0a'
+        code  '\0d\0a'
+        '----'  shak  '\0d\0a'
+        'Content-Disposition: form-data; name="client_id"\0d\0a'
+        '\0d\0a'
+        client-id  '\0d\0a'
+        '----'  shak  '\0d\0a'
+        'Content-Disposition: form-data; name="client_secret"\0d\0a'
+        '\0d\0a'
+        client-secret  '\0d\0a'
+        '----'  shak  '\0d\0a'
+        'Content-Disposition: form-data; name="redirect_uri"\0d\0a\0d\0a'
+        url  '/apps/zlack/~/return'  '\0d\0a'
+        '----'  shak  '--'
+    ==  
+  ::
   ++  we-auth
+    ^-  tape
     ;:  welp
       "https://slack.com/oauth/v2/authorize?"
-      "scope=incoming-webhooks,channels:history,channels:read&"
+      "scope=incoming-webhook+channels:history+channels:read&"
       "client_id={(trip client-id)}&"
-      "redirect_uri={(trip url)}/apps/"
+      "redirect_uri={(trip url)}/apps/zlack/~/return"
     ==
   ::
   ++  we-work
     ^+  we
     =*  headers  header-list.request.inb
-    =/  reqline  (parse-request-line:ser url.request.inb)
+    =/  reqline=request-line:ser
+      (parse-request-line:ser url.request.inb)
     ~&  >>  [%inb-request inb]
     =+  pol=`(pole knot)`site.reqline
     ~&  >  [%pole pol]
@@ -190,7 +246,7 @@
           ~
         ?+    method.request.inb  (we-fail 'bad method')
           ::  XX: remove this later probably?
-          %'GET'   we(pay `[[200^~ `(we-page ~)]])
+          %'GET'   we(pay `[200^~ `(we-page ~)])
         ::
             %'POST'
           ?~  body.request.inb
@@ -216,7 +272,79 @@
             sign-secret    (~(got by figs) 'sign-secret')
           ==
         ==
+      ::
+          [%~.~ %return ~]
+        =+  fail=we(pay `[200^~ `(we-have %|)])
+        ?+    method.request.inb  fail
+        ::
+            %'GET'
+          ?^  access-token  we(pay `[200^~ `we-toke])
+          ?~  args.reqline  fail
+          =+  figs=(malt `(list [@t @t])`args.reqline)
+          =+  wire=/iris/request
+          ?~  cud=(~(get by figs) 'code')  fail
+          :: we(pay `[200^~ `we-toke])
+          %-  we-emit(pay `[200^~ `we-toke])
+          [%pass wire %arvo %i %request (we-code.we u.cud)]
+        ==
       ==
+  ::
+  ++  we-have
+    |=  suc=?
+    ^-  octs
+    %-  as-octt:mimes:html
+    %-  en-xml:html
+    ^-  manx
+    ;html
+      ;head
+        ;title:"zlack admin"
+        ;meta(charset "utf-8");
+        ;style:"{(trip we-lqqk)}"
+      ==
+    ::
+      ;body
+        ;div(class "container")
+          ;header
+            ;h1:"zlack, by quartus"
+            ;h2:"a slack bridge for urbit"
+          ==
+        ==
+      ::
+        ;div(class "container")
+          ;+  ?:  suc
+                ;h3(class "success-message"):"success"
+              ;h3(class "failure-message"):"failure"
+        ==
+      ==
+    ==
+  ::
+  ++  we-toke
+    ^-  octs
+    %-  as-octt:mimes:html
+    %-  en-xml:html
+    ^-  manx
+    ;html
+      ;head
+        ;title:"zlack admin"
+        ;meta(charset "utf-8");
+        ;style:"{(trip we-lqqk)}"
+      ==
+    ::
+      ;body
+        ;div(class "container")
+          ;header
+            ;h1:"zlack, by quartus"
+            ;h2:"a slack bridge for urbit"
+          ==
+        ==
+      ::
+        ;div(class "container")
+          ;+  ?~  access-token
+                ;h3(class "failure-message"):"acquiring token... refresh shortly"
+              ;h3(class "success-message"):"token acquired"
+        ==
+      ==
+    ==
   ::
   ++  we-page
     |=  errs=(list @t)
@@ -267,10 +395,11 @@
                       ;*  ^-  marl
                           %-  ~(rep in we-chat)
                           |=  [f=flag l=(list manx)]
+                          ?.  =(our.bol p.f)  l
                           :_  l
                           ;option
                             =value  "{(scow %p p.f)}|{(trip q.f)}"
-                            {(scow %p p.f)}|{(trip q.f)}
+                            {(scow %p p.f)} {(trip q.f)}
                           ==
                   ==
                 ==
@@ -436,6 +565,55 @@
       background-repeat: no-repeat;
       background-position: right 0.7em top 50%;
       background-size: 8px auto;
+    }
+
+    .success-message {
+      font-size: 2rem;
+      color: #ffffff;
+      text-shadow: 0 0 0.5rem #ffffff;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        text-shadow: 0 0 0.5rem #ffffff;
+      }
+      50% {
+        text-shadow: 0 0 1rem #ffffff;
+      }
+      100% {
+        text-shadow: 0 0 0.5rem #ffffff;
+      }
+    }
+
+    .failure-message {
+      font-size: 2rem;
+      color: #ff0000;
+      text-shadow: 0 0 0.5rem #ff0000;
+      animation: glitch 0.5s ease-in-out infinite;
+    }
+
+    @keyframes glitch {
+      0% {
+        transform: translate(0, 0);
+        text-shadow: 0 0 0.5rem #ff0000;
+      }
+      25% {
+        transform: translate(1px, -1px);
+        text-shadow: 0 0 0.75rem #ff0000;
+      }
+      50% {
+        transform: translate(-1px, 1px);
+        text-shadow: 0 0 1rem #ff0000;
+      }
+      75% {
+        transform: translate(-1px, -1px);
+        text-shadow: 0 0 0.75rem #ff0000;
+      }
+      100% {
+        transform: translate(1px, 1px);
+        text-shadow: 0 0 0.5rem #ff0000;
+      }
     }
     '''
   --
