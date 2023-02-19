@@ -16,7 +16,10 @@
       sign-secret=@t
       access-token=json
   ::
-      echo=(set diff:writs:cha)
+      echo=(set diff:writs:cha)                         :: messages
+      :: even=(set cord)                                   :: events
+  ::
+      :: names=(map @t @t)                                 :: user-id to plain name
   ==
 ::
 ::
@@ -147,6 +150,9 @@
             ?=(^ full-file.client-response.sig)
         ==
     =+  toke=(de-json:html q.data.u.full-file.client-response.sig)
+    ?~  toke  dat(state *state-0)
+    ?.  ?=(%o -.u.toke)  dat(state *state-0)
+    ?:  (~(has by p.u.toke) 'error')  dat(state *state-0)
     dat(access-token (need toke))
   ==
 ::
@@ -155,7 +161,89 @@
   ?+    pol  ~|(zlack-panic-bad-dude/[pol sig] !!)
       [%chan %chat host=@ name=@ ~]
     dat
+      [%zlack %talk wen=@ ~]
+    ?>  ?=(%poke-ack -.sig)
+    %.  dat
+    ?~(p.sig same (slog u.p.sig))
   ==
+::  +talk: handles chat io
+::
+++  talk
+  |_  caz=(list card)
+  +*  ta   .
+      our  (scot %p our.bol)
+      now  (scot %da now.bol)
+      doc  [our.bol %chat]
+  ++  ta-emit  |=(c=card ta(caz [c caz]))
+  ++  ta-emil  |=(lac=(list card) ta(caz (welp lac caz)))
+  ++  ta-abet  ^-((quip card _state) [(flop caz) state])
+  ++  ta-urbs  ta
+  ++  ta-slac
+    |=  j=json
+    =+  ven=(event-wrapper:ta-parz j)
+    ~&  >>>  ven
+    ?~  event.ven  ta
+    :: =.  echo  (~(put by echo) u.event.ven)
+    =-  (ta-emit %pass /zlack/talk/[now] %agent doc %poke -)
+    :-   %chat-action-0
+    !>(`action:cha`[(need chat) [now.bol %writs u.event.ven]])
+  ++  ta-parz
+    =,  dejs:format
+    |%
+    ++  slack-time
+      |=  t=@t
+      ^-  @ud
+      =;  [tim=@ud mor=@ud]
+        `@ud`(from-unix:chrono:userlib tim)
+      (rash t ;~((glue dot) dem dem))
+    ++  message
+      ^-  $-(json (unit diff:writs:cha))
+      |=  j=json
+      ?.  ?=(%o -.j)  ~
+      ?~  evn=(~(get by p.j) 'type')  ~
+      ?.  =(s/'message' u.evn)          ~
+      ?~  ser=(~(get by p.j) 'user')  ~
+      ?~  msg=(~(get by p.j) 'text')  ~
+      ?~  tim=(~(get by p.j) 'ts')    ~
+      =-  :-  ~  :_  -
+          [our.bol `@da`(slack-time ?>(?=(%s -.u.tim) p.u.tim))]
+      :-  %add
+      ^-  memo:cha
+      :: :^    ?~  d=(~(get by p.j) 'thread_ts')  ~
+      ::       `(slack-time ?>(?=(%s -.u.d) p.u.d))
+      :^    ~
+          our.bol
+        `@da`(slack-time ?>(?=(%s -.u.tim) p.u.tim))
+      :+  %story  ~
+      :~  'zlack: '
+          ?>(?=(%s -.u.ser) p.u.ser)
+          ' - '
+          ?>(?=(%s -.u.msg) p.u.msg)
+      ==
+    ++  event-wrapper
+      ^-  $-(json event)
+      %-  ot
+      :~  token+so
+          'team_id'^so
+          'api_app_id'^so
+          event+message
+          type+so
+          'event_id'^so
+          'event_time'^du
+          authorizations+(as authorizations)
+          'is_ext_shared_channel'^bo
+          'event_context'^so
+      ==
+    ++  authorizations
+      %-  ot
+      :~  'enterprise_id'^so:dejs-soft:format
+          'team_id'^so
+          'user_id'^so
+          'is_bot'^bo
+          'is_enterprise_install'^bo
+      ==
+    --
+  --
 ::  +webs: handles handle-http-requests
 ::
 ++  webs
@@ -205,7 +293,6 @@
         'https://slack.com/api/oauth.v2.access'
       ['Content-Type'^(cat 3 'multipart/form-data; boundary=--' shak)]~
     =-  `(as-octs:mimes:html (rap 3 -))
-    =-  ~&  >  `@t`(rap 3 -)  -
     :~  '----'  shak  '\0d\0a'
         'Content-Disposition: form-data; name="code"\0d\0a'
         '\0d\0a'
@@ -240,7 +327,6 @@
       (parse-request-line:ser url.request.inb)
     ~&  >>  [%inb-request inb]
     =+  pol=`(pole knot)`site.reqline
-    ~&  >  [%pole pol]
     ?>  ?=([%apps %zlack rest=*] pol)
       ?+    rest.pol  (we-fail 'bad path')
           ~
@@ -287,6 +373,21 @@
           %-  we-emit(pay `[200^~ `we-toke])
           [%pass wire %arvo %i %request (we-code.we u.cud)]
         ==
+      ::
+          [%~.~ %events ~]
+        =+  fail=we(pay `[400^~ ~])
+        ?.  ?=(%'POST' method.request.inb)  fail
+        ?~  body.request.inb  fail
+        =+  jon=(de-json:html q.u.body.request.inb)
+        ?~  jon  fail
+        ?>  ?=(%o -.u.jon)
+        ?~  challenge=(~(get by p.u.jon) 'challenge')
+          =^  cards  state  ta-abet:(ta-slac:talk `json`u.jon)
+          ~&  >>  cards
+          (we-emil(pay `[200^~ ~]) cards)
+        =-  we(pay `[200^~ `-])
+        %-  as-octt:mimes:html  %-  en-json:html
+        (frond:enjs:format challenge+u.challenge)
       ==
   ::
   ++  we-have
@@ -339,7 +440,12 @@
         ==
       ::
         ;div(class "container")
-          ;+  ?~  access-token
+          ;+  ?~  chat
+              ;div(class "container")
+                ;h3:"something went wrong"
+                ;a(class "button", href "../", disabled ""):"retry"
+              ==
+              ?~  access-token
                 ;h3(class "failure-message"):"acquiring token... refresh shortly"
               ;h3(class "success-message"):"token acquired"
         ==
@@ -498,6 +604,7 @@
     fieldset {
       display: flex;
       flex-direction: column;
+      align-items: center;
       width: 35vw;
     }
 
