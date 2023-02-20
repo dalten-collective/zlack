@@ -1,6 +1,6 @@
 :~  title+'zlack'
     info+'an urbitxslack bridge'
-    color+0x8c.0644
+    color+0x87.8787
     image+'https://freedom-club.sfo2.digitaloceanspaces.com/props/quartus/long-logo/ab_Quartus-05_only.png'
     version+[0 0 1]
     website+'https://dalten.org/'

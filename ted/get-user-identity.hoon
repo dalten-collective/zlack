@@ -8,15 +8,16 @@
     |=  j=json
     ^-  (unit @t)
     ?>  ?=(%o -.j)
-    (~(get by p.j) 'access_token')
+    ?~(h=(~(get by p.j) 'access_token') ~ `?>(?=(%s -.u.h) +.u.h))
   ++  ident
     |=  [id=@t toke=@t]
-    ^-  [request:http outbound-config:iris]
-    :_  *outbound-config:iris
+    ^-  request:http
     :^    %'GET'
         %-  crip
-        "https://slack.com/api/users.info?token={(trip toke)}&user={(trip id)}"
-      ['Content-Type'^(cat 3 'application/x-www-form-urlencoded')]~
+        "https://slack.com/api/users.info?user={(trip id)}&pretty=1"
+      :~  'Content-Type'^'application/x-www-form-urlencoded'
+          'Authorization'^(cat 3 'Bearer ' toke)
+      ==
     ~
   --
 ::
@@ -29,6 +30,7 @@
   !<((unit [@t json]) vaz)
 =+  fail=(pure:m !>(`updates:zal`user-identity+~))
 ?~  them              fail
+=,  u.them
 ?~  toke=(strip axs)  fail
 ::
 ;<  ~  bind:m  (send-request (ident id u.toke))
@@ -40,9 +42,9 @@
 ?.  ?=(%o -.u.jun)            fail
 =+  hav=p.u.jun
 ?~  sat=(~(get by hav) 'ok')  fail
-?.  =(s/'true' u.sat)         fail
+?.  =(b/%& u.sat)             fail
 =+  user=(~(got by hav) 'user')
 ?>  ?=(%o -.user)
 =+  name=(~(got by p.user) 'name')
 ?>  ?=(%s -.name)
-(pure:m !>(`updates:zal`user-identity+[id p.name]))
+(pure:m !>(`updates:zal`user-identity+`[id p.name]))

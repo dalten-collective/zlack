@@ -175,7 +175,7 @@
         ::  XX: do threads
         :^  ~  our.bol  tim
         [%story ~ ~['zlack: ' id ' - ' ms]]
-      %-  emit
+      %-  emit(echo (~(put in echo) msg))
       =-  [%pass wir %agent [our.bol %chat] %poke -]
       :-  %chat-action-0
       !>(`action:cha`[(need chat) now.bol %writs msg])
@@ -205,7 +205,6 @@
   ::
       [%chan %chat host=@ name=@ ~]
     ?>  =((need chat) [(slav %p host.pol) name.pol])
-    ~&  >  sig
     dat
   ==
 ::  +talk: handles chat io
@@ -223,7 +222,6 @@
   ++  ta-slac
     |=  j=json
     =+  ven=(event-wrapper:ta-parz j)
-    ~&  >>>  ven
     ?~  event.ven  ta
     ?-    -.u.event.ven
         %|
@@ -370,7 +368,7 @@
     ^-  tape
     ;:  welp
       "https://slack.com/oauth/v2/authorize?"
-      "scope=incoming-webhook+channels:history+channels:read+identity.basic&"
+      "scope=incoming-webhook+channels:history+channels:read+users:read&"
       "client_id={(trip client-id)}&"
       "redirect_uri={(trip url)}/apps/zlack/~/return"
     ==
@@ -438,7 +436,6 @@
         ?>  ?=(%o -.u.jon)
         ?~  challenge=(~(get by p.u.jon) 'challenge')
           =^  cards  state  ta-abet:(ta-slac:talk `json`u.jon)
-          ~&  >>  cards
           (we-emil(pay `[200^~ ~]) cards)
         =-  we(pay `[200^~ `-])
         %-  as-octt:mimes:html  %-  en-json:html
