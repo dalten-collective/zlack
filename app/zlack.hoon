@@ -17,9 +17,8 @@
       access-token=json
   ::
       echo=(set diff:writs:cha)                         :: messages
-      :: even=(set cord)                                   :: events
+      names=(map @t @t)                                 :: user-id to plain name
   ::
-      :: names=(map @t @t)                                 :: user-id to plain name
   ==
 ::
 ::
@@ -154,17 +153,60 @@
     ?.  ?=(%o -.u.toke)  dat(state *state-0)
     ?:  (~(has by p.u.toke) 'error')  dat(state *state-0)
     dat(access-token (need toke))
+  ::
+      [%get %user id=@ msg=@ tim=@ ~]
+    ~_  'ZLACK: failed to get user name'
+    ?>  ?=([%khan %arow *] sig)
+    ?.  ?=(%& -.p.+.sig)
+      %.  dat
+      (slog 'ZLACK: failed user name thread.' tang.p.p.+.sig)
+    =+  id=(slav %t id.pol)
+    =+  ms=(slav %t msg.pol)
+    ::
+    =+  rez=!<(updates +.p.p.+.sig)
+    =+  tim=`@da`(slav %da tim.pol)
+    =+  wir=/talk/(scot %da now.bol)
+    ?>  ?=(%user-identity -.rez)
+    ?~  p.rez
+      =/  msg=diff:writs:cha
+        :+  [our.bol tim]
+          %add
+        ^-  memo:cha
+        ::  XX: do threads
+        :^  ~  our.bol  tim
+        [%story ~ ~['zlack: ' id ' - ' ms]]
+      %-  emit
+      =-  [%pass wir %agent [our.bol %chat] %poke -]
+      :-  %chat-action-0
+      !>(`action:cha`[(need chat) now.bol %writs msg])
+    ::
+    ?>  =(id.u.p.rez id)
+    =/  msg=diff:writs:cha
+      :+  [our.bol tim]
+        %add
+      ^-  memo:cha
+      ::  XX: do threads
+      :^  ~  our.bol  tim
+      [%story ~ ~['zlack: ' name.u.p.rez ' - ' ms]]
+    %-  %=  emit
+          names  (~(put by names) u.p.rez)
+          echo   (~(put in echo) msg)
+        ==
+    =-  [%pass wir %agent [our.bol %chat] %poke -]
+    chat-action-0+!>(`action:cha`[(need chat) now.bol %writs msg])
   ==
 ::
 ++  dude
   |=  [pol=(pole knot) sig=sign:agent:gall]
   ?+    pol  ~|(zlack-panic-bad-dude/[pol sig] !!)
-      [%chan %chat host=@ name=@ ~]
-    dat
-      [%zlack %talk wen=@ ~]
+      [%talk wen=@ ~]
     ?>  ?=(%poke-ack -.sig)
-    %.  dat
-    ?~(p.sig same (slog u.p.sig))
+    (?~(p.sig same (slog u.p.sig)) dat)
+  ::
+      [%chan %chat host=@ name=@ ~]
+    ?>  =((need chat) [(slav %p host.pol) name.pol])
+    ~&  >  sig
+    dat
   ==
 ::  +talk: handles chat io
 ::
@@ -183,10 +225,23 @@
     =+  ven=(event-wrapper:ta-parz j)
     ~&  >>>  ven
     ?~  event.ven  ta
-    :: =.  echo  (~(put by echo) u.event.ven)
-    =-  (ta-emit %pass /zlack/talk/[now] %agent doc %poke -)
-    :-   %chat-action-0
-    !>(`action:cha`[(need chat) [now.bol %writs u.event.ven]])
+    ?-    -.u.event.ven
+        %|
+      =,  u.event.ven
+      =/  wir=path
+        /get/user/(scot %t -.p)/(scot %t +<.p)/(scot %da +>.p)
+      =-  (ta-emit %pass wir %arvo %k %fard %zlack -)
+      :-  %get-user-identity
+      noun+!>(`(unit [@t json])`[~ -.p access-token])
+    ::
+        %&
+      =,  u.event.ven
+      :: =.  echo  (~(put by echo) u.event.ven)
+      ?:  (~(has in echo) p)  ta(echo (~(del in echo) p))
+      =-  (ta-emit %pass /talk/[now] %agent doc %poke -)
+      :-   %chat-action-0
+      !>(`action:cha`[(need chat) [now.bol %writs p]])
+    ==
   ++  ta-parz
     =,  dejs:format
     |%
@@ -197,29 +252,30 @@
         `@ud`(from-unix:chrono:userlib tim)
       (rash t ;~((glue dot) dem dem))
     ++  message
-      ^-  $-(json (unit diff:writs:cha))
+      ^-  $-  json
+          (unit (each diff:writs:cha [usr=@t msg=@t tim=@da]))
       |=  j=json
       ?.  ?=(%o -.j)  ~
       ?~  evn=(~(get by p.j) 'type')  ~
-      ?.  =(s/'message' u.evn)          ~
+      ?.  =(s/'message' u.evn)        ~
       ?~  ser=(~(get by p.j) 'user')  ~
       ?~  msg=(~(get by p.j) 'text')  ~
       ?~  tim=(~(get by p.j) 'ts')    ~
-      =-  :-  ~  :_  -
-          [our.bol `@da`(slack-time ?>(?=(%s -.u.tim) p.u.tim))]
+      ?.  ?&  ?=(%s -.u.ser)
+              ?=(%s -.u.msg)
+              ?=(%s -.u.tim)
+          ==
+        ~
+      ?~  nam=(~(get by names) p.u.ser)
+        `|/[p.u.ser p.u.msg `@da`(slack-time p.u.tim)]
+      =-  `&/[[our.bol `@da`(slack-time p.u.tim)] -]
       :-  %add
       ^-  memo:cha
+      ::  XX: fix threads
       :: :^    ?~  d=(~(get by p.j) 'thread_ts')  ~
       ::       `(slack-time ?>(?=(%s -.u.d) p.u.d))
-      :^    ~
-          our.bol
-        `@da`(slack-time ?>(?=(%s -.u.tim) p.u.tim))
-      :+  %story  ~
-      :~  'zlack: '
-          ?>(?=(%s -.u.ser) p.u.ser)
-          ' - '
-          ?>(?=(%s -.u.msg) p.u.msg)
-      ==
+      :^  ~  our.bol  `@da`(slack-time p.u.tim)
+      [%story ~ ~['zlack: ' p.u.ser ' - ' p.u.msg]]
     ++  event-wrapper
       ^-  $-(json event)
       %-  ot
@@ -272,11 +328,10 @@
     |=(a=@t (rush a ;~((glue bar) ;~(pfix sig fed:ag) sym)))
   ::
   ++  we-hear
-    |=  =flag
     ^+  we
+    =+  flag=(need chat)
     =+  pat=/chat/(scot %p p.flag)/[q.flag]
-    %-  we-emit
-    [%pass chan+pat %agent [our.bol %chat] %watch pat]
+    (we-emit %pass chan+pat %agent [our.bol %chat] %watch pat)
   ::
   ++  we-abet
     ^-  (quip card _state)
@@ -315,7 +370,7 @@
     ^-  tape
     ;:  welp
       "https://slack.com/oauth/v2/authorize?"
-      "scope=incoming-webhook+channels:history+channels:read&"
+      "scope=incoming-webhook+channels:history+channels:read+identity.basic&"
       "client_id={(trip client-id)}&"
       "redirect_uri={(trip url)}/apps/zlack/~/return"
     ==
@@ -348,8 +403,8 @@
             (we-fail 'missing arguments')
           ?~  fug=(we-part (~(got by figs) 'chat'))
             (we-fail 'missing chat')
-          =-  we(pay `[[200^~ `(we-page ~)]])
-          %=  we
+          %=  we-hear
+            pay            `[[200^~ `(we-page ~)]]
             url            (~(got by figs) 'url')
             chat           fug
             app-id         (~(got by figs) 'app-id')

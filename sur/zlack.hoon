@@ -75,11 +75,15 @@
       [%my-url url=@t]
   ==
 ::
++$  updates
+  $%  [%user-identity p=(unit [id=@t name=@t])]
+  ==
+::
 +$  event
   $:  token=@t
       team-id=@t
       api-app-id=@t
-      event=(unit diff:writs:cha)
+      event=(unit (each diff:writs:cha [usr=@t msg=@t tim=@da]))
       type=@t
       event-id=@t
       event-time=@da
