@@ -74,7 +74,8 @@
     |=  [wir=wire sig=sign:agent:gall]
     ~>  %bout.[0 '%zlack +on-agent']
     ^-  (quip card _this)
-    `this
+    =^  cards  state  abet:(dude:eng wir sig)
+    [cards this]
   ::
   ++  on-arvo
     |=  [wir=wire sig=sign-arvo]
@@ -128,6 +129,31 @@
     (emil cards)
   ==
 ::
+++  dude
+  |=  [pol=(pole knot) sig=sign:agent:gall]
+  ?+    pol  ~|(zlack-panic-bad-dude/[pol sig] !!)
+      [%talk wen=@ ~]
+    ?>  ?=(%poke-ack -.sig)
+    (?~(p.sig same (slog u.p.sig)) dat)
+  ::
+      [%chan %chat host=@ name=@ ~]
+    ~&  >>>  [%got-chat (slav %p host.pol) name.pol (need chat)]
+    :: ?>  =((need chat) [(slav %p host.pol) name.pol])
+    ?+    -.sig  ~|(zlack-panic-chat-sig/sig !!)
+        %kick
+      =+  pat=(welp +.pol /ui/writs)
+      (emit %pass pol %agent [our.bol %chat] %watch pat)
+    ::
+        %watch-ack
+      %.  dat
+      ?~(p.sig same (slog 'zlack-panic-watch-fail' u.p.sig))
+    ::
+        %fact
+      =^  cards  state  ta-abet:(ta-urbs:talk cage.sig)
+      (emil cards)
+    ==
+  ==
+::
 ++  arvo
   |=  [pol=(pole knot) sig=sign-arvo]
   ?+    pol  ~|(zlack-panic-bad-arvo/[pol sig] !!)
@@ -174,7 +200,7 @@
         ^-  memo:cha
         ::  XX: do threads
         :^  ~  our.bol  tim
-        [%story ~ ~['zlack: ' id ' - ' ms]]
+        [%story ~ ~['"' id '": ' ms]]
       %-  emit(echo (~(put in echo) msg))
       =-  [%pass wir %agent [our.bol %chat] %poke -]
       :-  %chat-action-0
@@ -187,25 +213,13 @@
       ^-  memo:cha
       ::  XX: do threads
       :^  ~  our.bol  tim
-      [%story ~ ~['zlack: ' name.u.p.rez ' - ' ms]]
+      [%story ~ ~['"' name.u.p.rez ' - ' ms]]
     %-  %=  emit
           names  (~(put by names) u.p.rez)
           echo   (~(put in echo) msg)
         ==
     =-  [%pass wir %agent [our.bol %chat] %poke -]
     chat-action-0+!>(`action:cha`[(need chat) now.bol %writs msg])
-  ==
-::
-++  dude
-  |=  [pol=(pole knot) sig=sign:agent:gall]
-  ?+    pol  ~|(zlack-panic-bad-dude/[pol sig] !!)
-      [%talk wen=@ ~]
-    ?>  ?=(%poke-ack -.sig)
-    (?~(p.sig same (slog u.p.sig)) dat)
-  ::
-      [%chan %chat host=@ name=@ ~]
-    ?>  =((need chat) [(slav %p host.pol) name.pol])
-    dat
   ==
 ::  +talk: handles chat io
 ::
@@ -218,7 +232,22 @@
   ++  ta-emit  |=(c=card ta(caz [c caz]))
   ++  ta-emil  |=(lac=(list card) ta(caz (welp lac caz)))
   ++  ta-abet  ^-((quip card _state) [(flop caz) state])
-  ++  ta-urbs  ta
+  ++  ta-urbs
+    |=  [mar=mark vaz=vase]
+    ?+    mar  ~|(zlack-got-strange-fact/[mar vaz] !!)
+        %writ-diff
+      =+  diff=!<(diff:writs:cha vaz)
+      ?:  (~(has in echo) diff)
+        ta(echo (~(del in echo) diff))
+      ?-  -.q.diff
+        %add       ta
+        ::  XX: do deletes
+        %del       ta
+        ::  XX: do reactions
+        %add-feel  ta
+        %del-feel  ta
+      ==
+    ==
   ++  ta-slac
     |=  j=json
     =+  ven=(event-wrapper:ta-parz j)
@@ -273,7 +302,7 @@
       :: :^    ?~  d=(~(get by p.j) 'thread_ts')  ~
       ::       `(slack-time ?>(?=(%s -.u.d) p.u.d))
       :^  ~  our.bol  `@da`(slack-time p.u.tim)
-      [%story ~ ~['zlack: ' p.u.ser ' - ' p.u.msg]]
+      [%story ~ ~['"' u.nam '": ' p.u.msg]]
     ++  event-wrapper
       ^-  $-(json event)
       %-  ot
@@ -329,7 +358,8 @@
     ^+  we
     =+  flag=(need chat)
     =+  pat=/chat/(scot %p p.flag)/[q.flag]
-    (we-emit %pass chan+pat %agent [our.bol %chat] %watch pat)
+    %-  we-emit
+    [%pass chan+pat %agent [our.bol %chat] %watch (welp pat /ui/writs)]
   ::
   ++  we-abet
     ^-  (quip card _state)
