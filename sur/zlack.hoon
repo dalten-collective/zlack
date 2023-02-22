@@ -77,6 +77,7 @@
 ::
 +$  updates
   $%  [%user-identity p=(unit [id=@t name=@t])]
+      [%sent-messages p=?]
   ==
 ::
 +$  event

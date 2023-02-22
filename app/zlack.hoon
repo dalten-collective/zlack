@@ -137,8 +137,7 @@
     (?~(p.sig same (slog u.p.sig)) dat)
   ::
       [%chan %chat host=@ name=@ ~]
-    ~&  >>>  [%got-chat (slav %p host.pol) name.pol (need chat)]
-    :: ?>  =((need chat) [(slav %p host.pol) name.pol])
+    ?>  =((need chat) [(slav %p host.pol) name.pol])
     ?+    -.sig  ~|(zlack-panic-chat-sig/sig !!)
         %kick
       =+  pat=(welp +.pol /ui/writs)
@@ -157,16 +156,24 @@
 ++  arvo
   |=  [pol=(pole knot) sig=sign-arvo]
   ?+    pol  ~|(zlack-panic-bad-arvo/[pol sig] !!)
+      [%eyre %connect ~]
+    ~_  'ZLACK: strange response on eyre.'
+    ?>(?=([%eyre %bound %& *] sig) dat)
+  ::
+      [%send %message wen=@ ~]
+    ~_  (crip "ZLACK: error sending message at {(trip wen.pol)}")
+    ?>  ?=([%khan %arow *] sig)
+    ?.  ?=(%& -.p.+.sig)
+      %.  dat
+      (slog 'ZLACK: error with send-message thread.' ~)
+    dat
+  ::
       [%behn rest=*]
     ?+    rest.pol  ~|(zlack-panic-bad-timer/rest.pol !!)
         [%start ~]
       =-  (emit %pass /eyre/connect %arvo %e -)
       [%connect [[~ [%apps %zlack ~]] dap.bol]]
     ==
-  ::
-      [%eyre %connect ~]
-    ~_  'ZLACK: strange response on eyre.'
-    ?>(?=([%eyre %bound %& *] sig) dat)
   ::
       [%iris %request ~]
     ~_  'ZLACK: strange response from slack.'
@@ -213,7 +220,7 @@
       ^-  memo:cha
       ::  XX: do threads
       :^  ~  our.bol  tim
-      [%story ~ ~['"' name.u.p.rez ' - ' ms]]
+      [%story ~ ~['"' name.u.p.rez '": ' ms]]
     %-  %=  emit
           names  (~(put by names) u.p.rez)
           echo   (~(put in echo) msg)
@@ -234,19 +241,22 @@
   ++  ta-abet  ^-((quip card _state) [(flop caz) state])
   ++  ta-urbs
     |=  [mar=mark vaz=vase]
+    =/  [url=@t tok=@t]
+      ?>  ?=(%o -.access-token)
+      =+  toke=(~(got by p.access-token) 'access_token')
+      =+  hook=(~(got by p.access-token) 'incoming_webhook')
+      =+  urle=?>(?=(%o -.hook) (~(got by p.hook) 'url'))
+      [?>(?=(%s -.urle) p.urle) ?>(?=(%s -.toke) p.toke)]
     ?+    mar  ~|(zlack-got-strange-fact/[mar vaz] !!)
         %writ-diff
       =+  diff=!<(diff:writs:cha vaz)
       ?:  (~(has in echo) diff)
         ta(echo (~(del in echo) diff))
-      ?-  -.q.diff
-        %add       ta
-        ::  XX: do deletes
-        %del       ta
-        ::  XX: do reactions
-        %add-feel  ta
-        %del-feel  ta
-      ==
+      =/  wir=path
+        /send/message/[now]
+      =-  (ta-emit %pass wir %arvo %k %fard %zlack -)
+      :-  %send-message
+      noun+!>(`(unit [@t @t diff:writs:cha])`[~ url tok diff])
     ==
   ++  ta-slac
     |=  j=json
@@ -265,7 +275,8 @@
       =,  u.event.ven
       :: =.  echo  (~(put by echo) u.event.ven)
       ?:  (~(has in echo) p)  ta(echo (~(del in echo) p))
-      =-  (ta-emit %pass /talk/[now] %agent doc %poke -)
+      =-  %-  ta-emit(echo (~(put in echo) p.u.event.ven))
+          [%pass /talk/[now] %agent doc %poke -]
       :-   %chat-action-0
       !>(`action:cha`[(need chat) [now.bol %writs p]])
     ==
@@ -278,6 +289,110 @@
       =;  [tim=@ud mor=@ud]
         `@ud`(from-unix:chrono:userlib tim)
       (rash t ;~((glue dot) dem dem))
+    ++  massage
+      |=  l=(list json)
+      =|  line=(list inline:cha)
+      |^  ^-  (unit (list inline:cha))
+        |-  ?~  l  ?~(line ~ `(flop line))
+        %=  $
+          l  t.l
+        ::
+          line  ?~(a=(analyze i.l) line (welp u.a line))
+        ==
+      ++  text
+        |=  [st=(unit json) ms=cord]
+        ?:  ?=(%28.252 ms)  break+~
+        ?~  st  `inline:cha`ms
+        ?>  ?=(%o -.u.st)
+        =/  sap=(map @t json)  p.u.st
+        =+  nil=`inline:cha`ms
+        |-  ^-  inline:cha
+        ?:  =(~ sap)
+          ~&  >  'exiting'
+          ~&  >  'exiting'
+          ~&  >  'exiting'
+          ~&  >  'exiting'
+          ~&  >  'exiting'
+          ~&  >  'exiting'
+          ~&  >>  nil
+          nil
+        ?:  (~(has by sap) 'bold')
+          $(sap (~(del by sap) 'bold'), nil bold+[nil ~])
+        ?:  (~(has by sap) 'italic')
+          $(sap (~(del by sap) 'italic'), nil italics+[nil ~])
+        ?:  (~(has by sap) 'strike')
+          $(sap (~(del by sap) 'strike'), nil strike+[nil ~])
+        ?:  (~(has by sap) 'code')
+          $(sap (~(del by sap) 'code'), nil code+ms)
+        $(sap *(map @t json))
+      ++  analyze
+        |=  j=json
+        ^-  (unit (list inline:cha))
+        ?>  ?=(%o -.j)
+        :: ?.  =(s/'rich_text_section' (~(got by p.j) 'type'))
+        ::   ~&  >  [%exiting (~(got by p.j) 'type')]
+        ::   ~
+        =+  data=(~(got by p.j) 'elements')
+        =|  elms=(list inline:cha)
+        ?>  ?=(%a -.data)
+        |-  ?~  p.data  ?~(elms ~ `elms)
+        ?.  ?=(%o -.i.p.data)  $(p.data t.p.data)
+        =+  mapp=p.i.p.data
+        ?.  =(s/'rich_text_section' (~(got by p.j) 'type'))
+          ?.  =(s/'rich_text_preformatted' (~(got by p.j) 'type'))
+            ~&  >>  'exiting'
+            $(p.data t.p.data)
+          ~&  >>>  'here'
+          =-  $(p.data t.p.data, elms [inline-code+(crip -) elms])
+          :: $(p.data t.p.data)
+          =+  hav=(~(got by mapp) 'text')
+          =-  (rash ?>(?=(%s -.hav) p.hav) (star -))
+          ;~  pose
+            (cook |=(@ '\0a\0d') (jest '\0a'))
+            prn
+          ==
+        ::
+        =+  type=(~(got by mapp) 'type')
+        =;  made=(unit inline:cha)
+          ~&  >>  [%made made]
+          ?~  made  $(p.data t.p.data)
+          ?^  u.made
+            $(p.data t.p.data, elms [u.made elms])
+          %=  $
+            p.data  t.p.data
+          ::
+              elms
+            =-  (welp - elms)
+            %-  flop  %+  rash  u.made
+            %-  star
+            ;~  pose
+              (cook |=(@ break+~) (jest '\0a'))
+              prn
+            ==
+          ==
+        ::
+        ~&  >  [%type +.type]
+        ?+    +.type  ~
+            %link
+          =+  jl=(~(got by mapp) 'url')
+          =+  jt=(~(got by mapp) 'text')
+          `link+[?>(?=(%s -.jl) p.jl) ?>(?=(%s -.jt) p.jt)]
+        ::
+            %text
+          =-  `(text -)
+          =+  msg=(~(got by mapp) 'text')
+          [(~(get by mapp) 'style') ?>(?=(%s -.msg) p.msg)]
+            %'rich_text_preformatted'
+          =-  `inline-code+(crip -)
+          =+  arr=(~(got by mapp) 'elements')
+          ^-  tape
+          %+  turn  ?>(?=(%a -.arr) p.arr)
+          |=  jo=json
+          ?>  ?=(%o -.jo)
+          =+  txt=(~(got by p.jo) 'text')
+          (cat 3 ?>(?=(%s -.txt) p.txt) '\0a\0d')
+        ==
+      --
     ++  message
       ^-  $-  json
           (unit (each diff:writs:cha [usr=@t msg=@t tim=@da]))
@@ -302,7 +417,26 @@
       :: :^    ?~  d=(~(get by p.j) 'thread_ts')  ~
       ::       `(slack-time ?>(?=(%s -.u.d) p.u.d))
       :^  ~  our.bol  `@da`(slack-time p.u.tim)
-      [%story ~ ~['"' u.nam '": ' p.u.msg]]
+      :+  %story  ~
+      ^-  (list inline:cha)
+      %+  welp
+        ~[blockquote+[(cat 3 u.nam ':') ~] break+~]
+      :: ~&  >>  %fail-1
+      ?~  bok=(~(get by p.j) 'blocks')        [p.u.msg ~]
+      :: ~&  >>  [%fail-2 u.bok]
+      ?.  ?=(%a -.u.bok)                      [p.u.msg ~]
+      =+  ary=p.u.bok
+      =|  lou=(list inline:cha)
+      |-  ^-  (list inline:cha)
+      ?~  ary  lou
+      =+  cur=?>(?=(%o -.i.ary) p.i.ary)
+      :: ~&  >>  %fail-3
+      ?~  els=(~(get by cur) 'elements')  $(ary t.ary)
+      :: ~&  >>  %fail-4
+      ?.  ?=(%a -.u.els)  $(ary t.ary)
+      :: ~&  >>  [%fail-5 p.u.els]
+      :: ~&  >>>  (massage p.u.els)
+      $(ary t.ary, lou ?~(ms=(massage p.u.els) lou (welp u.ms lou)))
     ++  event-wrapper
       ^-  $-(json event)
       %-  ot
@@ -398,7 +532,8 @@
     ^-  tape
     ;:  welp
       "https://slack.com/oauth/v2/authorize?"
-      "scope=incoming-webhook+channels:history+channels:read+users:read&"
+      "scope=incoming-webhook+channels:history+"
+          "channels:read+users:read+chat:write&"
       "client_id={(trip client-id)}&"
       "redirect_uri={(trip url)}/apps/zlack/~/return"
     ==
@@ -408,7 +543,7 @@
     =*  headers  header-list.request.inb
     =/  reqline=request-line:ser
       (parse-request-line:ser url.request.inb)
-    ~&  >>  [%inb-request inb]
+    :: ~&  >>  [%inb-request inb]
     =+  pol=`(pole knot)`site.reqline
     ?>  ?=([%apps %zlack rest=*] pol)
       ?+    rest.pol  (we-fail 'bad path')
@@ -431,8 +566,8 @@
             (we-fail 'missing arguments')
           ?~  fug=(we-part (~(got by figs) 'chat'))
             (we-fail 'missing chat')
-          %=  we-hear
-            pay            `[[200^~ `(we-page ~)]]
+          =-  we-hear:-(pay `[[200^~ `(we-page ~)]])
+          %=  we
             url            (~(got by figs) 'url')
             chat           fug
             app-id         (~(got by figs) 'app-id')
