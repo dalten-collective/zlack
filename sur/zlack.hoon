@@ -77,14 +77,14 @@
 ::
 +$  updates
   $%  [%user-identity p=(unit [id=@t name=@t])]
-      [%sent-messages p=?]
+      [%sent-messages p=(unit @t)]
   ==
 ::
 +$  event
   $:  token=@t
       team-id=@t
       api-app-id=@t
-      event=(unit (each diff:writs:cha [usr=@t msg=@t tim=@da]))
+      event=mesg
       type=@t
       event-id=@t
       event-time=@da
@@ -92,4 +92,9 @@
       is-ext-shared-channel=?
       event-context=@t
   ==
++$  mesg
+  %-  unit
+  %+  each
+    [dif=diff:writs:cha tim=[id:cha @t]]
+  [usr=@t msg=@t tim=@da]
 --
