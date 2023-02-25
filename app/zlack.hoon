@@ -270,7 +270,6 @@
       =+  diff=!<(diff:writs:cha vaz)
       ?:  (~(has in echo) diff)
         ta(echo (~(del in echo) diff))
-      ~&  >>  [%p p.diff]
       =/  wir=path
         /send/message/(scot %p p.p.diff)/(scot %da q.p.diff)
       =/  mom=(unit @t)
@@ -283,12 +282,7 @@
     ==
   ++  ta-slac
     |=  j=json
-    ~&  >  [%jon j]
     =+  ven=(event-wrapper:ta-parz j)
-    :: ~&  >>  ven
-    :: ?:  %-  ~(rep by authorizations.ven)
-    ::     |=([[(unit @t) @t @t p=? ?] q=_|] ?:(p %& q))
-    ::   ta
     ?~  event.ven  ta
     ?-    -.u.event.ven
         %|
@@ -415,9 +409,7 @@
       |=  j=json
       ?.  ?=(%o -.j)  ~
       ?.  (~(has by p.j) 'client_msg_id')
-        ~&  >  'repeated'
         ~
-      ~&  >>  'original'
       ?~  evn=(~(get by p.j) 'type')  ~
       ?.  =(s/'message' u.evn)        ~
       ?~  ser=(~(get by p.j) 'user')  ~
@@ -433,8 +425,6 @@
       =/  parent=(unit id:cha)
         ?~  t=(~(get by p.j) 'thread_ts')  ~
         (~(get by pilf) ?>(?=(%s -.u.t) p.u.t))
-      ~&  >  parent
-      ~&  >>  [%times `@da`(slack-time p.u.tim) p.u.tim]
       =;  mem=delta:writs:cha
         :+  ~  %&
         :-  [[our.bol `@da`(slack-time p.u.tim)] mem]

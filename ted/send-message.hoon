@@ -20,7 +20,6 @@
   ++  marse
     =,  enjs:format
     |=  [mem=memo:cha:zal cat=@t mom=(unit @t)]
-    ~&  >>  [%mom mom]
     ^-  json
     ?.  ?=(%story -.content.mem)
       ~
